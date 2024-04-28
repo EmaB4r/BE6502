@@ -1,5 +1,5 @@
 .export  _lcd_init, _lcd_print_char
-.import  __DDRA__, __DDRB__, __PORTA__, __PORTB__ ; Defined in breadboard.cfg
+.import  __DDRA__, __DDRB__, __PORTA__, __PORTB__
 
 .segment "CODE"
 DISPLAY_E = %10000000
@@ -8,7 +8,8 @@ DISPLAY_RS = %00100000
 NEWLINE_INSTR= %11000000
 
 
-;   checks if the lcd busy flag is set
+;checks if the lcd busy flag is set
+;MOD: none
 lcd_check_busy:
     pha ; to not change the accumulator pushes it's contents on the stack
     lda #%00000000
@@ -28,7 +29,8 @@ _lcd_read_busy:
     pla
     rts
 
-;   sends an instruction loaded in the accumulator to the lcd
+;sends an instruction loaded in the accumulator to the lcd
+;MOD: A
 lcd_send_instruction:
     jsr lcd_check_busy
     sta __PORTB__   ; outputs instruction to register B
@@ -38,8 +40,11 @@ lcd_send_instruction:
     sta __PORTA__   ; resets E pin
     rts
 
+
+;sends a char loaded in the accumulator to the lcd
+;MOD: none
 lcd_send_char:
-;   sends a char loaded in the accumulator to the lcd
+    pha
     jsr lcd_check_busy
     sta __PORTB__   ; outputs char to register B
     lda #DISPLAY_RS ; sets RS HIGH
@@ -48,9 +53,11 @@ lcd_send_char:
     sta __PORTA__
     lda #0
     sta __PORTA__
+    pla
     rts
 
-
+;initializes lcd using VIA
+;MOD: none
 _lcd_init:
     pha
     lda #$ff
@@ -78,6 +85,8 @@ _lcd_init:
     pla
     rts
 
+;prints char to lcd
+;MOD: none
 _lcd_print_char:
     jsr lcd_send_char
     rts
